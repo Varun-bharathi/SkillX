@@ -105,13 +105,17 @@ cd backend
 
 # Install dependencies
 npm install
+```
 
-# Configure environment variables
-# Create a .env file with the following:
-# MONGO_URI=mongodb://localhost:27017/SkillX
-# JWT_SECRET=your_super_secret_key
-# PORT=5000
+Create a `.env` file in the `backend` directory and add the following configuration:
+```env
+PORT=5000
+MONGO_URI=mongodb://127.0.0.1:27017/SkillX
+JWT_SECRET=aura_lms_super_secret_session_token_key_1994
+```
 
+Seed the database and start the backend:
+```bash
 # Seed the database with courses, quizzes, and a demo user
 npm run seed
 
