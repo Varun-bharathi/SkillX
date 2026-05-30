@@ -1,0 +1,6 @@
+# Root gitignore to ignore dependencies and environment variables
+node_modules/
+.env
+.env.*
+dist/
+*.log
