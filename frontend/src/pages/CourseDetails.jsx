@@ -6,7 +6,7 @@ import { ArrowLeft, Clock, BookOpen, User, CheckCircle2, Circle } from "lucide-r
 export default function CourseDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { courses, enrolledCourses, enrollInCourse, completeModule, isEnrolled, getEnrolledProgress, quizScores } = useLms();
+  const { courses, enrolledCourses, enrollInCourse, completeModule, resetCourseProgress, isEnrolled, getEnrolledProgress, quizScores } = useLms();
 
   const course = courses.find((c) => c.id === id);
 
@@ -34,6 +34,15 @@ export default function CourseDetails() {
   const handleModuleClick = (moduleId) => {
     if (!enrolled) return;
     completeModule(id, moduleId, syllabus.length);
+  };
+
+  const handleRestartCourse = () => {
+    const confirmReset = window.confirm(
+      "Are you sure you want to reset your progress for this course? This will clear your module checklists and any certification quiz scores, allowing you to start learning again from the first module."
+    );
+    if (confirmReset) {
+      resetCourseProgress(id);
+    }
   };
 
   const pageHeaderStyle = {
@@ -212,19 +221,46 @@ export default function CourseDetails() {
 
                 {progress === 100 ? (
                   quizScores.some((q) => q.courseId === id && q.score >= 70) ? (
-                    <button
-                      onClick={() => navigate("/profile")}
-                      style={{
-                        padding: "12px",
-                        borderRadius: "var(--radius-sm)",
-                        backgroundColor: "var(--color-success)",
-                        color: "#ffffff",
-                        fontWeight: 700,
-                        textAlign: "center"
-                      }}
-                    >
-                      View Awarded Certificate
-                    </button>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                      <button
+                        onClick={() => navigate("/profile")}
+                        style={{
+                          padding: "12px",
+                          borderRadius: "var(--radius-sm)",
+                          backgroundColor: "var(--color-success)",
+                          color: "#ffffff",
+                          fontWeight: 700,
+                          textAlign: "center"
+                        }}
+                      >
+                        View Awarded Certificate
+                      </button>
+                      <button
+                        onClick={handleRestartCourse}
+                        style={{
+                          padding: "10px",
+                          borderRadius: "var(--radius-sm)",
+                          border: "1px solid var(--border-color)",
+                          color: "#ef4444",
+                          fontWeight: 600,
+                          fontSize: "0.85rem",
+                          textAlign: "center",
+                          backgroundColor: "rgba(239, 68, 68, 0.05)",
+                          cursor: "pointer",
+                          transition: "all var(--transition-fast)"
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.backgroundColor = "rgba(239, 68, 68, 0.1)";
+                          e.currentTarget.style.borderColor = "#ef4444";
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.backgroundColor = "rgba(239, 68, 68, 0.05)";
+                          e.currentTarget.style.borderColor = "var(--border-color)";
+                        }}
+                      >
+                        Restart Course
+                      </button>
+                    </div>
                   ) : (
                     <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                       <span style={{ fontSize: "0.8rem", color: "var(--color-warning)", fontWeight: 600, textAlign: "center" }}>
@@ -243,6 +279,31 @@ export default function CourseDetails() {
                         }}
                       >
                         Take Certification Exam
+                      </button>
+                      <button
+                        onClick={handleRestartCourse}
+                        style={{
+                          padding: "10px",
+                          borderRadius: "var(--radius-sm)",
+                          border: "1px solid var(--border-color)",
+                          color: "#ef4444",
+                          fontWeight: 600,
+                          fontSize: "0.85rem",
+                          textAlign: "center",
+                          backgroundColor: "rgba(239, 68, 68, 0.05)",
+                          cursor: "pointer",
+                          transition: "all var(--transition-fast)"
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.backgroundColor = "rgba(239, 68, 68, 0.1)";
+                          e.currentTarget.style.borderColor = "#ef4444";
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.backgroundColor = "rgba(239, 68, 68, 0.05)";
+                          e.currentTarget.style.borderColor = "var(--border-color)";
+                        }}
+                      >
+                        Restart Course
                       </button>
                     </div>
                   )

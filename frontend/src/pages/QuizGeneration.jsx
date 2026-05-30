@@ -84,7 +84,7 @@ export default function QuizGeneration() {
     ctx.font = "14px monospace";
     ctx.fillStyle = "#64748b";
     const dateStr = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
-    ctx.fillText(`Granted on ${dateStr}  •  Verified SkillX Token System (AURA-${course.id.toUpperCase()})`, 500, 520);
+    ctx.fillText(`Granted on ${dateStr}  •  Verified AuraLMS Token System (AURA-${course.id.toUpperCase()})`, 500, 520);
     ctx.font = "bold 15px sans-serif";
     ctx.fillStyle = "#e2e8f0";
     ctx.fillText("AuraEdemy Director", 300, 600);
@@ -133,7 +133,7 @@ export default function QuizGeneration() {
       <div class='name'>${userName}</div>
       <div class='syl'>has successfully finished the extensive course curriculum syllabus titled</div>
       <div class='ctitle'>${course.title}</div>
-      <div class='dt'>Granted on ${dateStr} &nbsp;•&nbsp; Verified SkillX Token System (${tokenId})</div>
+      <div class='dt'>Granted on ${dateStr} &nbsp;•&nbsp; Verified AuraLMS Token System (${tokenId})</div>
       <div class='sigs'><div class='sig'><div class='sig-line'></div><div class='sig-title'>AuraEdemy Director</div></div><div class='sig'><div class='sig-line'></div><div class='sig-title'>Principal Examiner</div></div></div>
     </div><script>window.onload=function(){window.print();setTimeout(function(){window.close();},500);}<\/script></body></html>`);
     printWindow.document.close();
@@ -370,6 +370,8 @@ export default function QuizGeneration() {
                 {eligibleCourses.map((course) => {
                   const attempt = quizScores.find((score) => score.courseId === course.id);
                   const enrollment = enrolledCourses[course.id];
+                  const hasPassed = attempt && attempt.score >= 70;
+                  const hasFailed = attempt && attempt.score < 70;
 
                   return (
                     <div
@@ -390,7 +392,11 @@ export default function QuizGeneration() {
                           <span className="badge badge-primary">{course.category.toUpperCase()}</span>
                           <div style={{ display: "flex", gap: "6px" }}>
                             <span className="badge badge-success">100% Complete</span>
-                            {attempt && <span className="badge badge-success">Attempted</span>}
+                            {attempt && (
+                              <span className={`badge ${hasPassed ? "badge-success" : "badge-danger"}`}>
+                                {hasPassed ? "Test Completed" : "Re-Test"}
+                              </span>
+                            )}
                           </div>
                         </div>
                         <h4 style={{ fontSize: "1.1rem", fontWeight: 700, marginTop: "12px", lineHeight: 1.3 }}>
@@ -410,8 +416,19 @@ export default function QuizGeneration() {
                       </div>
 
                       {attempt && (
-                        <div style={{ fontSize: "0.85rem", padding: "8px 12px", borderRadius: "var(--radius-sm)", backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-color)", color: "var(--text-secondary)", fontWeight: 500 }}>
-                          Best Recorded Score: <strong style={{ color: "var(--color-primary)" }}>{attempt.score}%</strong>
+                        <div style={{ 
+                          fontSize: "0.85rem", 
+                          padding: "8px 12px", 
+                          borderRadius: "var(--radius-sm)", 
+                          backgroundColor: hasPassed ? "rgba(16, 185, 129, 0.08)" : "rgba(239, 68, 68, 0.08)", 
+                          border: hasPassed ? "1px solid rgba(16, 185, 129, 0.15)" : "1px solid rgba(239, 68, 68, 0.15)",
+                          color: "var(--text-secondary)", 
+                          fontWeight: 500,
+                          display: "flex",
+                          justifyContent: "space-between"
+                        }}>
+                          <span>Result: <strong style={{ color: hasPassed ? "var(--color-success)" : "var(--color-danger)" }}>{hasPassed ? "Passed" : "Failed"}</strong></span>
+                          <span>Score: <strong style={{ color: hasPassed ? "var(--color-success)" : "var(--color-danger)" }}>{attempt.score}%</strong></span>
                         </div>
                       )}
 
@@ -421,14 +438,20 @@ export default function QuizGeneration() {
                           marginTop: "auto",
                           padding: "12px",
                           borderRadius: "var(--radius-sm)",
-                          background: "var(--gradient-primary)",
+                          background: hasFailed 
+                            ? "var(--color-danger, #ef4444)" 
+                            : "var(--gradient-primary)",
                           color: "#ffffff",
                           fontWeight: 700,
                           fontSize: "0.85rem",
-                          boxShadow: "var(--shadow-glow)"
+                          boxShadow: hasFailed ? "0 4px 12px rgba(239, 68, 68, 0.2)" : "var(--shadow-glow)"
                         }}
                       >
-                        {attempt ? "Re-Take Exam" : "Take Certification Exam"}
+                        {hasPassed 
+                          ? "Take Another Test" 
+                          : hasFailed 
+                            ? "Take Re-Test" 
+                            : "Take Certification Exam"}
                       </button>
                     </div>
                   );
@@ -812,7 +835,7 @@ export default function QuizGeneration() {
                     onMouseOut={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
                   >
                     <RefreshCw size={18} />
-                    Retake Exam
+                    Take Re-Test
                   </button>
 
                   {/* Secondary: back */}

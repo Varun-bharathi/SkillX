@@ -229,7 +229,7 @@ export default function SettingsPage() {
             </h3>
 
             <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.4 }}>
-              Toggle SkillX aesthetic color system instantly between a glowing dark interface or a modern high-contrast clean light theme.
+              Toggle AuraLMS aesthetic color system instantly between a glowing dark interface or a modern high-contrast clean light theme.
             </p>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "4px" }}>

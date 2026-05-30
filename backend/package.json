@@ -1,5 +1,5 @@
 {
-  "name": "SkillX-backend",
+  "name": "auralms-backend",
   "version": "1.0.0",
   "type": "module",
   "main": "server.js",

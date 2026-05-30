@@ -51,7 +51,7 @@ export default function LandingPage() {
           lineHeight: 1.1,
           maxWidth: "900px"
         }}>
-          Elevate Your Technical Skills with <span className="gradient-text">SkillX</span>
+          Elevate Your Technical Skills with <span className="gradient-text">AuraLMS</span>
         </h1>
 
         <p style={{
@@ -136,7 +136,7 @@ export default function LandingPage() {
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "50px" }}>
             <h2 style={{ fontSize: "2.2rem", fontWeight: 800, fontFamily: "var(--font-heading)" }}>
-              Why Engineers Choose SkillX
+              Why Engineers Choose AuraLMS
             </h2>
             <p style={{ color: "var(--text-secondary)", marginTop: "10px", fontSize: "1rem" }}>
               Our platform bridges the gap between structured courses and visual learning milestones.

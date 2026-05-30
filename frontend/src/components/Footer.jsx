@@ -34,7 +34,7 @@ export default function Footer() {
         <span>Aura<span style={{ color: "var(--color-primary)" }}>LMS</span></span>
       </div>
       <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", textAlign: "center" }}>
-        © {new Date().getFullYear()} SkillX Personalized EdTech Platform. Crafted with React & Vite. All rights reserved.
+        © {new Date().getFullYear()} AuraLMS Personalized EdTech Platform. Crafted with React & Vite. All rights reserved.
       </p>
     </footer>
   );

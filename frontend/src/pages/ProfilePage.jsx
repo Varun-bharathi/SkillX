@@ -78,7 +78,7 @@ export default function ProfilePage() {
     ctx.font = "14px monospace";
     ctx.fillStyle = "#64748b";
     const dateStr = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
-    ctx.fillText(`Granted on ${dateStr}  •  Verified SkillX Token System (AURA-${course.id.toUpperCase()})`, 500, 520);
+    ctx.fillText(`Granted on ${dateStr}  •  Verified AuraLMS Token System (AURA-${course.id.toUpperCase()})`, 500, 520);
 
     // Signature marks
     ctx.font = "bold 15px sans-serif";
@@ -255,7 +255,7 @@ export default function ProfilePage() {
           <div class="course-title">${course.title}</div>
           
           <div class="date-token">
-            Granted on ${dateStr} &nbsp;•&nbsp; Verified SkillX Token System (${tokenId})
+            Granted on ${dateStr} &nbsp;•&nbsp; Verified AuraLMS Token System (${tokenId})
           </div>
           
           <div class="signatures">
@@ -592,7 +592,7 @@ export default function ProfilePage() {
                 {selectedCertCourse.title}
               </h4>
               <p style={{ color: "var(--text-muted)", fontSize: "0.75rem", marginTop: "24px" }}>
-                Granted on May 30, 2026 • Verified SkillX Token System (AURA-{selectedCertCourse.id.toUpperCase()})
+                Granted on May 30, 2026 • Verified AuraLMS Token System (AURA-{selectedCertCourse.id.toUpperCase()})
               </p>
             </div>
 

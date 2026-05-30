@@ -182,4 +182,70 @@ router.put("/module/:id", protect, async (req, res) => {
   }
 });
 
+// @route   PUT /api/courses/reset/:id
+router.put("/reset/:id", protect, async (req, res) => {
+  try {
+    const courseId = req.params.id;
+
+    if (isDbConnected()) {
+      // --- MongoDB Mode ---
+      const user = await User.findById(req.user.id);
+      if (!user) {
+        return res.status(404).json({ message: "User account not found." });
+      }
+
+      const enrollmentIdx = user.enrolledCourses.findIndex((c) => c.courseId === courseId);
+      if (enrollmentIdx === -1) {
+        return res.status(400).json({ message: "You must first enroll in this course." });
+      }
+
+      // Reset progress and modules checklist
+      user.enrolledCourses[enrollmentIdx].completedModules = [];
+      user.enrolledCourses[enrollmentIdx].progress = 0;
+
+      // Clean up any quiz score records for this course to allow complete restart
+      user.quizScores = user.quizScores.filter((q) => q.courseId !== courseId);
+
+      await user.save();
+
+      return res.json({
+        message: "Course progress reset successfully!",
+        enrolledCourses: user.enrolledCourses,
+        quizScores: user.quizScores
+      });
+    } else {
+      // --- In-Memory Fallback Mode ---
+      console.log("Using In-Memory Database Fallback for Course Reset");
+      const userIdx = inMemoryUsers.findIndex((u) => u._id === req.user.id);
+      if (userIdx === -1) {
+        return res.status(404).json({ message: "User account not found." });
+      }
+
+      const user = inMemoryUsers[userIdx];
+      const enrollmentIdx = user.enrolledCourses.findIndex((c) => c.courseId === courseId);
+      if (enrollmentIdx === -1) {
+        return res.status(400).json({ message: "You must first enroll in this course." });
+      }
+
+      // Reset progress and modules checklist
+      user.enrolledCourses[enrollmentIdx].completedModules = [];
+      user.enrolledCourses[enrollmentIdx].progress = 0;
+
+      // Clean up any quiz score records for this course
+      user.quizScores = user.quizScores.filter((q) => q.courseId !== courseId);
+
+      inMemoryUsers[userIdx] = user;
+
+      return res.json({
+        message: "Course progress reset successfully!",
+        enrolledCourses: user.enrolledCourses,
+        quizScores: user.quizScores
+      });
+    }
+  } catch (error) {
+    console.error("Course Reset Error:", error.message);
+    res.status(500).json({ message: "Server failed to reset course progress." });
+  }
+});
+
 export default router;

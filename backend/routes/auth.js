@@ -43,10 +43,7 @@ router.post("/signup", async (req, res) => {
         name,
         email,
         password: hashedPassword,
-        enrolledCourses: [
-          { courseId: "react-core", progress: 33, completedModules: ["rc-1", "rc-2"] },
-          { courseId: "css-mastery", progress: 0, completedModules: [] }
-        ]
+        enrolledCourses: []
       });
 
       const token = generateToken(newUser._id);
@@ -85,10 +82,7 @@ router.post("/signup", async (req, res) => {
         avatar: "🎓",
         targetSkills: ["React", "CSS Mastery"],
         notifications: { push: true, email: false },
-        enrolledCourses: [
-          { courseId: "react-core", progress: 33, completedModules: ["rc-1", "rc-2"] },
-          { courseId: "css-mastery", progress: 0, completedModules: [] }
-        ],
+        enrolledCourses: [],
         quizScores: []
       };
 

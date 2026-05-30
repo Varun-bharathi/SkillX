@@ -16,7 +16,9 @@ export default function QuizCard({ quiz, scoreRecord, onStart }) {
     transition: "transform var(--transition-fast), border-color var(--transition-fast)"
   };
 
-  const isCompleted = !!scoreRecord;
+  const hasAttempted = !!scoreRecord;
+  const hasPassed = hasAttempted && scoreRecord.score >= 70;
+  const hasFailed = hasAttempted && scoreRecord.score < 70;
 
   return (
     <div 
@@ -31,8 +33,21 @@ export default function QuizCard({ quiz, scoreRecord, onStart }) {
       }}
     >
       <div>
-        <span className={`badge ${isCompleted ? "badge-success" : "badge-primary"}`} style={{ marginBottom: "10px" }}>
-          {isCompleted ? "Completed" : "Available"}
+        <span 
+          className={`badge ${
+            hasPassed 
+              ? "badge-success" 
+              : hasFailed 
+                ? "badge-danger" 
+                : "badge-primary"
+          }`} 
+          style={{ marginBottom: "10px" }}
+        >
+          {hasPassed 
+            ? "Test Completed" 
+            : hasFailed 
+              ? "Re-Test" 
+              : "Available"}
         </span>
         <h4 style={{ fontSize: "1rem", fontWeight: 700, lineHeight: 1.4 }}>
           {courseTitle}
@@ -50,49 +65,57 @@ export default function QuizCard({ quiz, scoreRecord, onStart }) {
         </div>
       </div>
 
-      {isCompleted ? (
+      {hasAttempted && (
         <div style={{ 
-          marginTop: "auto", 
           padding: "10px 12px", 
           borderRadius: "var(--radius-sm)", 
-          backgroundColor: "rgba(16, 185, 129, 0.08)", 
-          border: "1px solid rgba(16, 185, 129, 0.15)",
+          backgroundColor: hasPassed ? "rgba(16, 185, 129, 0.08)" : "rgba(239, 68, 68, 0.08)", 
+          border: hasPassed ? "1px solid rgba(16, 185, 129, 0.15)" : "1px solid rgba(239, 68, 68, 0.15)",
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between"
+          justifyContent: "space-between",
+          marginTop: "auto"
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--color-success)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", color: hasPassed ? "var(--color-success)" : "var(--color-danger)" }}>
             <CheckCircle2 size={16} />
-            <span style={{ fontSize: "0.85rem", fontWeight: 700 }}>Passed</span>
+            <span style={{ fontSize: "0.85rem", fontWeight: 700 }}>
+              {hasPassed ? "Passed" : "Failed"}
+            </span>
           </div>
-          <span style={{ fontSize: "0.9rem", fontWeight: 800, color: "var(--color-success)" }}>
+          <span style={{ fontSize: "0.9rem", fontWeight: 800, color: hasPassed ? "var(--color-success)" : "var(--color-danger)" }}>
             {scoreRecord.score}% Score
           </span>
         </div>
-      ) : (
-        <button
-          onClick={onStart}
-          style={{
-            marginTop: "auto",
-            padding: "10px 14px",
-            borderRadius: "var(--radius-sm)",
-            backgroundColor: "var(--color-primary)",
-            color: "#ffffff",
-            fontWeight: 600,
-            fontSize: "0.85rem",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "6px",
-            transition: "background var(--transition-fast)"
-          }}
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = "var(--color-primary-hover)"}
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = "var(--color-primary)"}
-        >
-          <Play size={14} fill="currentColor" />
-          <span>Launch Quiz</span>
-        </button>
       )}
+
+      <button
+        onClick={onStart}
+        style={{
+          marginTop: hasAttempted ? "0" : "auto",
+          padding: "10px 14px",
+          borderRadius: "var(--radius-sm)",
+          backgroundColor: hasFailed ? "var(--color-danger, #ef4444)" : "var(--color-primary)",
+          color: "#ffffff",
+          fontWeight: 600,
+          fontSize: "0.85rem",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "6px",
+          transition: "background var(--transition-fast)"
+        }}
+        onMouseOver={(e) => e.currentTarget.style.backgroundColor = hasFailed ? "#dc2626" : "var(--color-primary-hover)"}
+        onMouseOut={(e) => e.currentTarget.style.backgroundColor = hasFailed ? "var(--color-danger, #ef4444)" : "var(--color-primary)"}
+      >
+        <Play size={14} fill="currentColor" />
+        <span>
+          {hasPassed 
+            ? "Take Another Test" 
+            : hasFailed 
+              ? "Take Re-Test" 
+              : "Launch Quiz"}
+        </span>
+      </button>
     </div>
   );
 }

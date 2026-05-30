@@ -244,6 +244,34 @@ export const LmsProvider = ({ children }) => {
     }
   };
 
+  const resetCourseProgress = async (courseId) => {
+    if (!token) return;
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_URL}/courses/reset/${courseId}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to reset course progress.");
+
+      const enrollmentsMap = {};
+      data.enrolledCourses.forEach((c) => {
+        enrollmentsMap[c.courseId] = c;
+      });
+      setEnrolledCourses(enrollmentsMap);
+      setQuizScores(data.quizScores);
+      updateMilestonesFromEnrollments(enrollmentsMap);
+    } catch (err) {
+      console.error("Reset Course Action Failed:", err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Quiz submission actions
   const submitQuizResult = async (courseId, courseTitle, score, totalQuestions) => {
     if (!token) return;
@@ -329,6 +357,7 @@ export const LmsProvider = ({ children }) => {
         enrolledCourses,
         enrollInCourse,
         completeModule,
+        resetCourseProgress,
         quizScores,
         submitQuizResult,
         learningPath,

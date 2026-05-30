@@ -20,7 +20,7 @@ app.use(express.json()); // Parse incoming JSON payloads
 
 // Root status check
 app.get("/api/status", (req, res) => {
-  res.json({ status: "SkillX Server is healthy and running!" });
+  res.json({ status: "AuraLMS Server is healthy and running!" });
 });
 
 // Routing Subpaths
@@ -36,7 +36,7 @@ app.use((err, req, res, next) => {
 
 const connectDbAndStartServer = async () => {
   try {
-    const dbUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/SkillX";
+    const dbUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/auralms";
     await mongoose.connect(dbUri);
     console.log("Mongoose connected successfully to MongoDB database!");
   } catch (error) {

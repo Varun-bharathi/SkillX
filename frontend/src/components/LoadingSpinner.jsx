@@ -31,7 +31,7 @@ export default function LoadingSpinner() {
       <style>{keyframesStyle}</style>
       <div style={ringStyle}></div>
       <p style={{ color: "var(--text-secondary)", fontWeight: 500, fontSize: "0.95rem" }}>
-        Loading SkillX experience...
+        Loading AuraLMS experience...
       </p>
     </div>
   );

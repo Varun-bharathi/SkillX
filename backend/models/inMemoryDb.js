@@ -752,27 +752,7 @@ export const inMemoryUsers = [
     avatar: "✨",
     targetSkills: ["React", "CSS Layouts", "Data Visualization"],
     notifications: { push: true, email: false },
-    enrolledCourses: [
-      {
-        courseId: "react-core",
-        progress: 33,
-        completedModules: ["rc-1", "rc-2"]
-      },
-      {
-        courseId: "css-mastery",
-        progress: 0,
-        completedModules: []
-      }
-    ],
-    quizScores: [
-      {
-        id: "attempt-init-1",
-        courseId: "react-core",
-        courseTitle: "React.js Core Essentials",
-        score: 100,
-        totalQuestions: 3,
-        date: new Date().toISOString().split("T")[0]
-      }
-    ]
+    enrolledCourses: [],
+    quizScores: []
   }
 ];

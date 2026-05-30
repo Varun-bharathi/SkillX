@@ -1,6 +1,6 @@
-# 🎓 SkillX — Full-Stack Learning Management System
+# 🎓 AuraLMS — Full-Stack Learning Management System
 
-> A modern, feature-rich Learning Management System built with the MERN stack. SkillX provides an end-to-end learning experience — from course browsing and enrollment to AI-powered quiz certification and downloadable certificates.
+> A modern, feature-rich Learning Management System built with the MERN stack. AuraLMS provides an end-to-end learning experience — from course browsing and enrollment to AI-powered quiz certification and downloadable certificates.
 
 ---
 
@@ -110,7 +110,7 @@ npm install
 Create a `.env` file in the `backend` directory and add the following configuration:
 ```env
 PORT=5000
-MONGO_URI=mongodb://127.0.0.1:27017/SkillX
+MONGO_URI=mongodb://127.0.0.1:27017/auralms
 JWT_SECRET=aura_lms_super_secret_session_token_key_1994
 ```
 
@@ -141,7 +141,7 @@ After running `npm run seed` in the backend:
 
 | Field | Value |
 |---|---|
-| Email | `demo@SkillX.com` |
+| Email | `demo@auralms.com` |
 | Password | `password123` |
 
 ---
