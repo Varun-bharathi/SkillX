@@ -18,14 +18,17 @@ import StudentAnalytics from "../pages/StudentAnalytics";
 import CourseRecommendation from "../pages/CourseRecommendation";
 import ProfilePage from "../pages/ProfilePage";
 import SettingsPage from "../pages/SettingsPage";
+import AiContentGenerator from "../pages/AiContentGenerator";
+import ModuleContent from "../pages/ModuleContent";
+
+// Helper route guard to enforce authentication
+const RequireAuth = ({ children }) => {
+  const { user } = useLms();
+  return user.isLoggedIn ? children : <Navigate to="/login" replace />;
+};
 
 export default function AppRoutes() {
   const { user } = useLms();
-
-  // Helper route guard to enforce authentication
-  const RequireAuth = ({ children }) => {
-    return user.isLoggedIn ? children : <Navigate to="/login" replace />;
-  };
 
   return (
     <Routes>
@@ -58,6 +61,14 @@ export default function AppRoutes() {
           element={
             <RequireAuth>
               <CourseDetails />
+            </RequireAuth>
+          } 
+        />
+        <Route 
+          path="course/:courseId/module/:moduleId" 
+          element={
+            <RequireAuth>
+              <ModuleContent />
             </RequireAuth>
           } 
         />
@@ -106,6 +117,14 @@ export default function AppRoutes() {
           element={
             <RequireAuth>
               <SettingsPage />
+            </RequireAuth>
+          } 
+        />
+        <Route 
+          path="ai-generator" 
+          element={
+            <RequireAuth>
+              <AiContentGenerator />
             </RequireAuth>
           } 
         />

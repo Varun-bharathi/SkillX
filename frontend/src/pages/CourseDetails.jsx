@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useLms } from "../context/LmsContext";
-import { ArrowLeft, Clock, BookOpen, User, CheckCircle2, Circle } from "lucide-react";
+import { ArrowLeft, Clock, BookOpen, User, CheckCircle2, Circle, Loader2 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 
 export default function CourseDetails() {
   const { id } = useParams();
@@ -31,9 +32,14 @@ export default function CourseDetails() {
   // Find completed modules for this course
   const completedModulesList = enrolledCourses[id]?.completedModules || [];
 
-  const handleModuleClick = (moduleId) => {
+  const handleModuleClick = async (moduleId, moduleTitle) => {
     if (!enrolled) return;
+    
+    // Standard progress completion logic
     completeModule(id, moduleId, syllabus.length);
+
+    // Navigate to the dedicated module page
+    navigate(`/course/${id}/module/${moduleId}`);
   };
 
   const handleRestartCourse = () => {
@@ -149,8 +155,8 @@ export default function CourseDetails() {
                 return (
                   <div 
                     key={module.id}
-                    onClick={() => handleModuleClick(module.id)}
-                    style={moduleRowStyle(isModuleCompleted)}
+                    onClick={() => handleModuleClick(module.id, module.title)}
+                    style={{...moduleRowStyle(isModuleCompleted), flexDirection: "column", alignItems: "stretch"}}
                     className={enrolled ? "curriculum-module-row" : ""}
                     onMouseOver={(e) => {
                       if (enrolled) {
@@ -167,22 +173,24 @@ export default function CourseDetails() {
                       }
                     }}
                   >
-                    <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-                      {enrolled && (
-                        <div style={{ color: isModuleCompleted ? "var(--color-success)" : "var(--text-muted)", display: "flex", alignItems: "center" }}>
-                          {isModuleCompleted 
-                            ? <CheckCircle2 size={18} fill="currentColor" style={{ color: "#ffffff", stroke: "var(--color-success)" }} />
-                            : <Circle size={18} />
-                          }
-                        </div>
-                      )}
-                      <span style={{ fontSize: "0.9rem", fontWeight: 600 }}>
-                        {idx + 1}. {module.title}
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                        {enrolled && (
+                          <div style={{ color: isModuleCompleted ? "var(--color-success)" : "var(--text-muted)", display: "flex", alignItems: "center" }}>
+                            {isModuleCompleted 
+                              ? <CheckCircle2 size={18} fill="currentColor" style={{ color: "#ffffff", stroke: "var(--color-success)" }} />
+                              : <Circle size={18} />
+                            }
+                          </div>
+                        )}
+                        <span style={{ fontSize: "0.9rem", fontWeight: 600 }}>
+                          {idx + 1}. {module.title}
+                        </span>
+                      </div>
+                      <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                        {module.duration}
                       </span>
                     </div>
-                    <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                      {module.duration}
-                    </span>
                   </div>
                 );
               })}

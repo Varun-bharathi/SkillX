@@ -10,7 +10,8 @@ import {
   Compass, 
   User, 
   Settings, 
-  LogOut 
+  LogOut,
+  Sparkles
 } from "lucide-react";
 
 export default function Sidebar({ isOpen, onClose }) {
@@ -29,6 +30,7 @@ export default function Sidebar({ isOpen, onClose }) {
     { to: "/quiz", label: "Quiz Arena", icon: HelpCircle },
     { to: "/analytics", label: "Analytics", icon: BarChart2 },
     { to: "/recommendations", label: "Recommendations", icon: Compass },
+    { to: "/ai-generator", label: "AI Generator", icon: Sparkles },
     { to: "/profile", label: "My Profile", icon: User },
     { to: "/settings", label: "Settings", icon: Settings }
   ];

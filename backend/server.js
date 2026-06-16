@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import courseRoutes from "./routes/courses.js";
 import quizRoutes from "./routes/quizzes.js";
+import llmRoutes from "./routes/llm.js";
 
 // Load configurations
 dotenv.config();
@@ -27,6 +28,7 @@ app.get("/api/status", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/quizzes", quizRoutes);
+app.use("/api/llm", llmRoutes);
 
 // Generic global error handling middleware
 app.use((err, req, res, next) => {
