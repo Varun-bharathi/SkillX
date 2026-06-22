@@ -1,6 +1,6 @@
-# 🎓 AuraLMS — Full-Stack Learning Management System
+# 🎓 SkillX — Full-Stack Learning Management System
 
-> A modern, feature-rich Learning Management System built with the MERN stack. AuraLMS provides an end-to-end learning experience — from course browsing and enrollment to AI-powered quiz certification and downloadable certificates.
+> A modern, feature-rich Learning Management System built with the MERN stack. SkillX provides an end-to-end learning experience — from course browsing and enrollment to AI-powered quiz certification and downloadable certificates.
 
 ---
 
@@ -95,8 +95,8 @@ lms/
 
 ### 1. Clone the Repository
 ```bash
-git clone <your-repo-url>
-cd lms
+git clone https://github.com/Varun-bharathi/SkillX.git
+cd SkillX
 ```
 
 ### 2. Backend Setup
