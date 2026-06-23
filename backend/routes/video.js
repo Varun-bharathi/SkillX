@@ -20,7 +20,7 @@ router.post("/generate", async (req, res) => {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `You are an expert educational content creator.
 Create a slideshow presentation for the topic "${topic}" within the context of the course "${course}".

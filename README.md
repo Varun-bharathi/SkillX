@@ -42,6 +42,7 @@
 | **Database** | MongoDB (Mongoose ODM) |
 | **Fallback DB** | In-Memory Database (auto-activated if MongoDB is unreachable) |
 | **Auth** | JWT (`jsonwebtoken`), `bcryptjs` for password hashing |
+| **AI Integration** | Google Gemini API (`@google/generative-ai`), model `gemini-2.5-flash` |
 | **Certificate** | HTML5 Canvas (PNG) + Browser Print API (PDF) |
 
 ---
@@ -60,7 +61,9 @@ lms/
 │   ├── routes/               # API route handlers
 │   │   ├── auth.js           # /api/auth — login, signup, profile
 │   │   ├── courses.js        # /api/courses — CRUD, enrollment, progress
-│   │   └── quizzes.js        # /api/quizzes — fetch quiz by courseId
+│   │   ├── llm.js            # /api/llm — AI custom content generation stream
+│   │   ├── quizzes.js        # /api/quizzes — fetch quiz by courseId
+│   │   └── video.js          # /api/video — AI slides presentation generation
 │   ├── seeder.js             # Seeds courses, quizzes, and users
 │   └── server.js             # Entry point, Express setup, CORS
 │
@@ -113,6 +116,7 @@ Create a `.env` file in the `backend` directory and add the following configurat
 PORT=5000
 MONGO_URI=mongodb://127.0.0.1:27017/auralms
 JWT_SECRET=aura_lms_super_secret_session_token_key_1994
+GEMINI_API_KEY=your_google_gemini_api_key_here
 ```
 
 Seed the database and start the backend:
@@ -168,6 +172,12 @@ After running `npm run seed` in the backend:
 | Method | Endpoint | Description |
 |---|---|---|
 | `GET` | `/api/quizzes/:courseId` | Fetch 10-question quiz for a course |
+
+### AI Integration — `/api/llm` & `/api/video`
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/llm/generate` | Stream dynamically generated lesson topic markdown content (protected) |
+| `POST` | `/api/video/generate` | Generate presentation slides (slides, narration scripts, slide contents) |
 
 ---
 
