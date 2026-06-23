@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useLms } from "../context/LmsContext";
-import { ArrowLeft, Loader2, BookOpen } from "lucide-react";
+import { ArrowLeft, Loader2, BookOpen, PlayCircle, PauseCircle, MonitorPlay, SkipForward, SkipBack, Square } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
 export default function ModuleContent() {
@@ -15,6 +15,15 @@ export default function ModuleContent() {
   const hasFetched = useRef(false);
   const course = courses.find((c) => c.id === courseId);
   const moduleInfo = course?.syllabus.find((m) => m.id === moduleId);
+
+  // Video State
+  const [showVideo, setShowVideo] = useState(false);
+  const [videoSlides, setVideoSlides] = useState([]);
+  const [isVideoLoading, setIsVideoLoading] = useState(false);
+  const [currentSlideIdx, setCurrentSlideIdx] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  
+  const utteranceRef = useRef(null);
 
   useEffect(() => {
     if (!course || !moduleInfo) {
@@ -41,9 +50,8 @@ export default function ModuleContent() {
           return;
         }
 
-        // As soon as the connection is open and we get a 200, stop the full-screen spinner
         setLoading(false);
-        setContent(""); // Clear any old content
+        setContent(""); 
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder("utf-8");
@@ -63,7 +71,102 @@ export default function ModuleContent() {
     };
 
     fetchContent();
+    
+    return () => {
+      window.speechSynthesis.cancel();
+    }
   }, [courseId, moduleId]);
+
+  const generateVideo = async () => {
+    setShowVideo(true);
+    setIsVideoLoading(true);
+    setVideoSlides([]);
+    setCurrentSlideIdx(0);
+    window.speechSynthesis.cancel();
+    setIsPlaying(false);
+
+    try {
+      const response = await fetch("http://localhost:5000/api/video/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ course: course.title, topic: moduleInfo.title }),
+      });
+      const data = await response.json();
+      if (data.success && data.slides && data.slides.length > 0) {
+        setVideoSlides(data.slides);
+      } else {
+        alert("Failed to generate video slides.");
+        setShowVideo(false);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error generating video.");
+      setShowVideo(false);
+    } finally {
+      setIsVideoLoading(false);
+    }
+  };
+
+  const playSlide = (idx) => {
+    window.speechSynthesis.cancel();
+    
+    if (idx >= videoSlides.length) {
+      setIsPlaying(false);
+      return;
+    }
+    
+    setCurrentSlideIdx(idx);
+    setIsPlaying(true);
+    
+    const slide = videoSlides[idx];
+    const utterance = new SpeechSynthesisUtterance(slide.narration);
+    
+    const voices = window.speechSynthesis.getVoices();
+    // Try to find a male voice, or fallback to Google English voice
+    const preferredVoice = voices.find(v => 
+      (v.name.toLowerCase().includes("male") || v.name.toLowerCase().includes("david") || v.name.toLowerCase().includes("mark")) && v.lang.startsWith("en")
+    ) || voices.find(v => v.name.includes("Google") && v.lang.startsWith("en"));
+    
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+    }
+    
+    utterance.rate = 0.95; 
+    
+    utterance.onend = () => {
+      playSlide(idx + 1);
+    };
+    
+    utteranceRef.current = utterance;
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const togglePlayPause = () => {
+    if (isPlaying) {
+      window.speechSynthesis.pause();
+      setIsPlaying(false);
+    } else {
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      } else {
+        playSlide(currentSlideIdx);
+      }
+      setIsPlaying(true);
+    }
+  };
+
+  const stopVideo = () => {
+    window.speechSynthesis.cancel();
+    setIsPlaying(false);
+    setShowVideo(false);
+  };
+
+  const skipSlide = (dir) => {
+    let nextIdx = currentSlideIdx + dir;
+    if (nextIdx < 0) nextIdx = 0;
+    if (nextIdx >= videoSlides.length) nextIdx = videoSlides.length - 1;
+    playSlide(nextIdx);
+  };
 
   if (!course || !moduleInfo) {
     return (
@@ -82,7 +185,8 @@ export default function ModuleContent() {
     border: "1px solid var(--border-color)",
     backgroundColor: "var(--bg-card)",
     boxShadow: "var(--shadow-sm)",
-    marginTop: "24px"
+    marginTop: "24px",
+    position: "relative"
   };
 
   return (
@@ -106,18 +210,91 @@ export default function ModuleContent() {
         <span>Back to Course</span>
       </button>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "32px" }}>
-        <span className="badge badge-primary" style={{ width: "fit-content", display: "flex", alignItems: "center", gap: "6px" }}>
-          <BookOpen size={14} />
-          {course.title}
-        </span>
-        <h1 style={{ fontSize: "2.2rem", fontWeight: 800, fontFamily: "var(--font-heading)", lineHeight: 1.2 }}>
-          {moduleInfo.title}
-        </h1>
-        <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem" }}>
-          Duration: {moduleInfo.duration}
-        </p>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "32px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          <span className="badge badge-primary" style={{ width: "fit-content", display: "flex", alignItems: "center", gap: "6px" }}>
+            <BookOpen size={14} />
+            {course.title}
+          </span>
+          <h1 style={{ fontSize: "2.2rem", fontWeight: 800, fontFamily: "var(--font-heading)", lineHeight: 1.2 }}>
+            {moduleInfo.title}
+          </h1>
+          <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem" }}>
+            Duration: {moduleInfo.duration}
+          </p>
+        </div>
+        
+        {!showVideo && !loading && (
+           <button 
+            onClick={generateVideo}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "12px 24px",
+              background: "var(--gradient-primary)",
+              color: "#fff",
+              borderRadius: "var(--radius-sm)",
+              fontWeight: 700,
+              boxShadow: "var(--shadow-glow)"
+            }}
+           >
+             <MonitorPlay size={20} />
+             Play Presentation
+           </button>
+        )}
       </div>
+
+      {showVideo && (
+        <div style={{...cardPanelStyle, border: "2px solid var(--color-primary)", padding: "0", overflow: "hidden", marginBottom: "24px" }}>
+          {isVideoLoading ? (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 0", backgroundColor: "#0f172a" }}>
+               <div className="custom-spinner" style={{ margin: "0 auto", borderColor: "rgba(255,255,255,0.1)", borderTopColor: "var(--color-primary)" }} />
+               <p style={{ marginTop: "20px", color: "#94a3b8", fontWeight: 600 }}>Synthesizing Slides & Audio...</p>
+            </div>
+          ) : videoSlides.length > 0 && (
+            <div style={{ position: "relative", backgroundColor: "#0f172a", color: "#f8fafc", minHeight: "450px", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+              
+              <div style={{ display: "flex", flex: 1, flexDirection: "row", overflow: "hidden" }}>
+                {/* Slide Content Display (Full Width) */}
+                <div style={{ position: "relative", width: "100%", padding: "50px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", textAlign: "center", background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)" }}>
+                   <h2 style={{ fontSize: "2.8rem", marginBottom: "32px", color: "#fff", textShadow: "0 2px 10px rgba(0,0,0,0.8)", maxWidth: "900px" }}>
+                     {videoSlides[currentSlideIdx].title}
+                   </h2>
+                   <div style={{ fontSize: "1.3rem", color: "#f1f5f9", lineHeight: 1.7, maxWidth: "900px", width: "100%", whiteSpace: "pre-wrap", textShadow: "0 1px 5px rgba(0,0,0,0.8)", padding: "32px", backgroundColor: "rgba(0, 0, 0, 0.2)", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.05)", borderTop: "4px solid var(--color-primary)", textAlign: "left" }}>
+                     {videoSlides[currentSlideIdx].content}
+                   </div>
+                </div>
+              </div>
+              
+              {/* Controls Bar */}
+              <div style={{ position: "relative", zIndex: 1, padding: "20px 40px", backgroundColor: "rgba(2, 6, 23, 1)", display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                <div style={{ color: "#94a3b8", fontSize: "0.95rem", fontWeight: 600 }}>
+                  Slide {currentSlideIdx + 1} of {videoSlides.length}
+                </div>
+                <div style={{ display: "flex", gap: "24px", alignItems: "center" }}>
+                   <button onClick={stopVideo} style={{ color: "#ef4444", background: "none", border: "none", cursor: "pointer", transition: "transform 0.2s" }} onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.1)"} onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"} title="Stop Video">
+                     <Square size={24} fill="currentColor" />
+                   </button>
+
+                   <button onClick={() => skipSlide(-1)} style={{ color: "#cbd5e1", background: "none", border: "none", cursor: currentSlideIdx === 0 ? "not-allowed" : "pointer", opacity: currentSlideIdx === 0 ? 0.5 : 1 }} disabled={currentSlideIdx === 0}>
+                     <SkipBack size={24} />
+                   </button>
+                   
+                   <button onClick={togglePlayPause} style={{ color: "var(--color-primary)", background: "none", border: "none", cursor: "pointer", transition: "transform 0.2s" }} onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.1)"} onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}>
+                     {isPlaying ? <PauseCircle size={54} /> : <PlayCircle size={54} />}
+                   </button>
+                   
+                   <button onClick={() => skipSlide(1)} style={{ color: "#cbd5e1", background: "none", border: "none", cursor: currentSlideIdx === videoSlides.length - 1 ? "not-allowed" : "pointer", opacity: currentSlideIdx === videoSlides.length - 1 ? 0.5 : 1 }} disabled={currentSlideIdx === videoSlides.length - 1}>
+                     <SkipForward size={24} />
+                   </button>
+                </div>
+                <div style={{ width: "90px" }}></div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       <div style={cardPanelStyle}>
         {loading ? (
@@ -171,7 +348,6 @@ export default function ModuleContent() {
               {content}
             </ReactMarkdown>
 
-            {/* Acknowledge / Return button underneath content */}
             <div style={{ marginTop: "40px", paddingTop: "20px", borderTop: "1px solid var(--border-color)", textAlign: "center" }}>
               <button 
                 onClick={() => navigate(`/course/${courseId}`)}
@@ -189,7 +365,7 @@ export default function ModuleContent() {
                 onMouseOver={(e) => e.currentTarget.style.opacity = 0.9}
                 onMouseOut={(e) => e.currentTarget.style.opacity = 1}
               >
-                OK
+                Complete & Return
               </button>
             </div>
           </div>
