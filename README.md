@@ -9,7 +9,8 @@
 ### 🧑‍🎓 Student Experience
 - **Course Catalog** — Browse and filter all available courses by category, difficulty, and rating
 - **Course Enrollment** — One-click enrollment with real-time progress tracking
-- **Video Lectures** — Stream lessons in-browser with automatic progress marking
+- **Video Lectures & AI Presentations** — Stream lessons or watch dynamic, full-screen AI-synthesized slide presentations
+- **AI Voiceover Narration** — High-quality text-to-speech narration guiding students through the presentation material
 - **Dashboard** — Personalized overview of enrolled courses, progress stats, and recent activity
 - **Personalized Learning Path** — Tailored AI-driven course recommendations
 - **Student Analytics** — Visual charts for learning hours, quiz scores, and completion rates
