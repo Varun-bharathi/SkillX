@@ -22,7 +22,11 @@ export const protect = async (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    console.error("Auth Middleware Error:", error.message);
+    if (error.name === "TokenExpiredError") {
+      console.warn("Auth Notice: Session token expired. Prompting user re-login.");
+    } else {
+      console.error("Auth Middleware Error:", error.message);
+    }
     res.status(401).json({ message: "Access denied. Invalid or expired token." });
   }
 };

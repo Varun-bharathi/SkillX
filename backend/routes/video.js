@@ -15,12 +15,20 @@ router.post("/generate", async (req, res) => {
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return res.status(500).json({ message: "LLM API key is not configured on the server." });
+    const isPlaceholder = !apiKey || apiKey === "your_google_gemini_api_key_here" || apiKey.trim() === "";
+
+    if (isPlaceholder) {
+      console.warn("Video Notice: GEMINI_API_KEY not configured or placeholder in backend/.env. Using mock slides fallback.");
+      return res.json({ success: true, slides: getMockSlides(topic), fallback: true });
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const candidateModels = [
+      "gemini-3.1-flash-lite",
+      "gemini-flash-lite-latest",
+      "gemini-3.5-flash-lite",
+      "gemini-3.8-flash"
+    ];
 
     const prompt = `You are an expert educational content creator.
 Create a slideshow presentation for the topic "${topic}" within the context of the course "${course}".
@@ -41,7 +49,24 @@ Example format:
 
 Please generate 4 to 6 slides.`;
 
-    const result = await model.generateContent(prompt);
+    let result = null;
+    let lastError = null;
+
+    for (const modelName of candidateModels) {
+      try {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        result = await model.generateContent(prompt);
+        break;
+      } catch (err) {
+        lastError = err;
+        console.warn(`Video Generation: model ${modelName} unavailable (${err.message}). Trying next...`);
+      }
+    }
+
+    if (!result) {
+      throw lastError || new Error("All candidate models failed to generate presentation.");
+    }
+
     let text = result.response.text();
     
     // Clean up potential markdown formatting in the LLM response
@@ -54,23 +79,23 @@ Please generate 4 to 6 slides.`;
   } catch (error) {
     console.error("Video Generation Error:", error.message);
     console.log("Falling back to mock slides due to API error...");
-    
-    // Mock slides fallback so the feature works even if API is down
-    const mockSlides = [
-      {
-        title: topic,
-        content: "- Welcome to this module.\\n- We are currently using fallback data.\\n- The AI service is currently experiencing high demand.",
-        "narration": "Welcome to this module. The AI service is currently experiencing high demand, so we are showing you this fallback presentation. You can still test the video controls and voice synthesis."
-      },
-      {
-        title: "Key Concepts",
-        content: "- Understand the core principles.\\n- Apply the knowledge in practice.\\n- Complete the quiz.",
-        "narration": "In this course, it is important to understand the core principles and apply your knowledge. Once you are done, don't forget to take the certification exam."
-      }
-    ];
-
-    res.json({ success: true, slides: mockSlides, fallback: true });
+    res.json({ success: true, slides: getMockSlides(topic), fallback: true });
   }
 });
+
+function getMockSlides(topic) {
+  return [
+    {
+      title: topic || "Module Overview",
+      content: "- Welcome to this module.\n- Comprehensive overview and key learning goals.\n- Practical real-world examples.",
+      narration: `Welcome to this module covering ${topic || "this topic"}. Here you will explore key concepts and practical applications.`
+    },
+    {
+      title: "Core Concepts",
+      content: "- Understand the foundational principles.\n- Apply the knowledge in coding exercises.\n- Test your understanding in the quiz.",
+      narration: "It is important to master these fundamental principles. Once you complete this walkthrough, proceed to the practice quiz."
+    }
+  ];
+}
 
 export default router;

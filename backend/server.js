@@ -38,6 +38,15 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: "An unexpected server error occurred." });
 });
 
+// Protect server process from third-party unhandled stream aborts
+process.on("unhandledRejection", (reason) => {
+  console.warn("Server Warning (Unhandled Rejection):", reason?.message || reason);
+});
+
+process.on("uncaughtException", (err) => {
+  console.error("Server Critical (Uncaught Exception):", err?.message || err);
+});
+
 const connectDbAndStartServer = async () => {
   try {
     const dbUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/auralms";
